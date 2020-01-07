@@ -1,7 +1,7 @@
 <template>
     <div id="app">
         <!--    <HelloWorld msg="Welcome to Your Vue.js App"/>-->
-        <form v-on:submit.prevent="getImg">
+        <form v-on:submit.prevent="getEarthPic">
             <div class="form-group">
                 <h1>BearthDay</h1>
                 <div class="col-3">
@@ -33,15 +33,15 @@
             }
         },
         methods: {
-            getImg() {
-                //toggleTrigger
-                this.showPicture = false;
-                let lastBirthday = moment(this.birthday).format('MM-DD-') + this.safeModeDate.format('YY');
-                let greater = moment(lastBirthday) > this.safeModeDate;
-                let year = greater? this.safeModeDate.format('YYYY') - 1: this.safeModeDate.format('YYYY');
-                this.epicNasaCall(year);
+            getEarthPic() {
+                let lastBirthday = moment(moment(this.birthday).format('MM-DD-') + this.safeModeDate.format('YY'));
+                let isPastSafeModeDate = lastBirthday > this.safeModeDate;
+                if(isPastSafeModeDate){
+                    lastBirthday.subtract(1, 'years')
+                }
+                this.makeNasaCall(lastBirthday.format('YYYY-MM-DD'));
             },
-            epicNasaCall() {
+            makeNasaCall() {
                 // axios({
                 //     method: 'GET',
                 //     url: `https://api.nasa.gov/EPIC/api/natural/date/${this.birthday}?api_key=0qwRJqJQSpLSijgFQyERlWyyhud6y0SwZtgcUOtO`
