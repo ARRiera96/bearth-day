@@ -26,17 +26,18 @@
         components: {},
         data() {
             return {
-                birthday: null,
                 showPicture: false,
                 imageSrc: '',
                 pictureDate: '',
-                isBdayMatch: false,
+                isBdayMatch: true,
                 /**
                  * The DSCOVR satellite went offline and into "safe mode" after this date,
                  * no more pictures of Earth have been taken since then.
                  * See: https://spacenews.com/software-fix-planned-to-restore-dscovr/
                  */
                 safeModeDate: moment('2019-06-27'),
+                birthday: null,
+                lastBirthday: null,
             }
         },
         methods: {
@@ -45,12 +46,12 @@
              */
             getEarthPic() {
                 this.showPicture = false;
-                this.isBdayMatch = false;
                 let thisYearsBday = moment(moment(this.birthday).format('MM-DD-') + this.safeModeDate.format('YY'));
                 //We can't use today's date to find a user's last bday since DSCOVR is offline so we use the safeModeDate
                 let isPastSafeMode = thisYearsBday > this.safeModeDate;
-                let lastBirthday = isPastSafeMode ? thisYearsBday.subtract(1, 'years') : thisYearsBday;
-                this.makeNasaCall(lastBirthday);
+                this.lastBirthday = isPastSafeMode ? thisYearsBday.subtract(1, 'years') : thisYearsBday;
+
+                this.makeNasaCall(this.lastBirthday.clone());
             },
             /**
              * Makes call to the EPIC NASA api to retrieve an image of Earth for the given date
@@ -67,11 +68,11 @@
                     if (response.data.length){
                         self.showPicture = true;
                         let image = response.data[0].image;
+                        self.isBdayMatch = self.lastBirthday.isSame(date);
                         self.imageSrc = `https://api.nasa.gov/EPIC/archive/natural/${date.format('YYYY/MM/DD')}` + `/png/${image}.png?api_key=0qwRJqJQSpLSijgFQyERlWyyhud6y0SwZtgcUOtO`;
                     }
                     //Otherwise, increment the day and try again.
                     else {
-                        self.isBdayMatch = false;
                         self.makeNasaCall(date.add(1, 'days'));
                     }
                 })
