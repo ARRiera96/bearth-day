@@ -18,7 +18,7 @@
 
 <script>
     // import HelloWorld from './components/HelloWorld.vue'
-    // import axios from 'axios';
+    import axios from 'axios';
     import moment from 'moment';
 
     export default {
@@ -39,24 +39,26 @@
                 if(isPastSafeModeDate){
                     lastBirthday.subtract(1, 'years')
                 }
-                this.makeNasaCall(lastBirthday.format('YYYY-MM-DD'));
+                this.makeNasaCall(lastBirthday);
             },
-            makeNasaCall() {
-                // axios({
-                //     method: 'GET',
-                //     url: `https://api.nasa.gov/EPIC/api/natural/date/${this.birthday}?api_key=0qwRJqJQSpLSijgFQyERlWyyhud6y0SwZtgcUOtO`
-                // }).then(function (response) {
-                //     alert(JSON.stringify(response));
-                //     if (response.data){
-                //
-                //     }
-                //     else {
-                //         this.epicNasaCall();
-                //     }
-                // })
-                // .catch(function () {
-                //     //handle error
-                // });
+            makeNasaCall(date) {
+                const self = this;
+                let formattedDate = date.format('YYYY-MM-DD');
+                axios({
+                    method: 'GET',
+                    url: `https://api.nasa.gov/EPIC/api/natural/date/${formattedDate}?api_key=0qwRJqJQSpLSijgFQyERlWyyhud6y0SwZtgcUOtO`
+                }).then(function (response) {
+                    if (response.data.length){
+                       console.log("im in here theres data ? " + formattedDate);
+                    }
+                    else {
+                        self.makeNasaCall(date.add(1, 'days'));
+                    }
+                })
+                .catch(function (error) {
+                    //handle error
+                    console.log(error);
+                });
             }
         }
     }
